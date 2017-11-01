@@ -1,0 +1,15 @@
+@startuml
+
+Usuário --> (Cadastrar)
+Usuário ---> (Fazer Login)
+Usuário ----> (Adicionar Amigo)
+Usuário ---> (Desfazer Amizade)
+Usuário ---> (Pesquisar Amigo)
+Usuário ----> (Publicar Feed)
+Usuário ---> (Trocar Mensagem com Grupo)
+Usuário --> (Trocar Mensagem com Amigo)
+Usuário -> (Listar Mensagem com Amigo)
+Usuário --> (Listar Amigos)
+Usuário --> (Listar Mensagens do Grupo)
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+
+class Usuario
+Usuario : string Nome
+Usuario : string Email
+Usuario : int Idade
+Usuario : string Profissao
+Usuario : fazer_login()
+Usuario : sair()
+Usuario : publicar_feed()
+Usuario : adicionar_amigo()
+Usuario : trocar_mensagem()
+Usuario : publicar_em_grupo()
+Usuario : mostrar_mensagem()
+Usuario : pesquisar_amigo()
+Usuario : desfazer_amigo()
+Usuario : criar_grupo()
+
+class Grupo
+Grupo : string descricao
+Grupo : string nome
+Grupo : int limite_participantes
+Grupo : list <participantes>
+Grupo : adicionar_amigo()
+Grupo : remover_publicacao()
+Grupo : publicar()
+
+class Publicacao
+Publicacao : Usuario
+Publicacao : list <comentarios>
+Publicacao : comentar()
+Publicacao : curtir()
+Publicacao : compartilhar()
+Publicacao : mencionar()
+Publicacao : marcar_localizacao()
+
+class Mensagem
+Mensagem : string data
+Mensagem : string horario
+Mensagem : Usuario
+Mensagem : Amigo
+Mensagem : string texto
+
+class Comentario
+Comentario : Usuario
+Comentario : String Data
+Comentario : string Horario
+Comentario : string texto
+
+Usuario "0..n"--"1..n" Grupo
+Usuario "0..n"--"1" Publicacao
+Mensagem -- Grupo
+Comentario -- Publicacao
+
+@enduml
