@@ -26,11 +26,24 @@ class usuarioDAO:
         self.conexao.commit()
 
     def buscar(self, email):
-        # necessário cursor_factory=psycopg2.extras.DictCursor quando se quer trabalhar com a tupla em formato de dicionário.
-        # Ex.: tupla['nm_conta']
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute("SELECT * FROM usuario WHERE email='"+ str(email)+ "'")
-        usuario: Usuario = self.__montar_objeto_usuario(cursor.fetchone())
+        cursor.execute("SELECT * FROM usuario WHERE email='"+email+"'")
+        try:
+            usuario: Usuario = self.__montar_objeto_usuario(cursor.fetchone())
+        except Exception:
+            return False
+
+        cursor.close()
+        return usuario
+
+    def buscar_pelo_nome(self, nome):
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("SELECT * FROM usuario WHERE nome LIKE '"+ "%" + nome + "%'")
+        try:
+            usuario: Usuario = self.__montar_objeto_usuario(cursor.fetchone())
+        except Exception:
+            return False
+
         cursor.close()
         return usuario
 
@@ -40,14 +53,15 @@ class usuarioDAO:
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("SELECT * FROM amigos WHERE nome like '"+ "%" + str(nome)+ "%" + "'")
         for tupla in cursor.fetchall():
-            return 'Email: ' + str(tupla[2])
+            return 'Nome: '+str(tupla[1])+',','Email: ' + str(tupla[3])
         cursor.close()
 
-    def listar_amigos(self):
+    def listar_amigos(self, email):
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('SELECT * FROM amigos')
         for tupla in cursor.fetchall():
-            print('Nome: ' + str(tupla[1]), 'Email: ' + str(tupla[2]))
+            if str(tupla[0]) == email:
+                return ('Nome: ' + str(tupla[1]), 'Email: ' + str(tupla[3]))
         cursor.close()
 
 
@@ -66,6 +80,15 @@ class usuarioDAO:
     def set_senha(self, email,  nova_senha):
         cursor = self.conexao.cursor()
         cursor.execute("update login set senha = '"+str(nova_senha)+ "'" + " where email = '"+str(email)+"'")
+        cursor.close()
+        self.conexao.commit()
+
+    def excuir_conta(self, email):
+        cursor = self.conexao.cursor()
+        cursor.execute("DELETE FROM login WHERE email='"+ str(email)+ "'")
+        cursor.execute("DELETE FROM amigos WHERE email_user='"+ str(email)+ "' or email_amigo='"+ str(email)+ "'")
+        cursor.execute("DELETE FROM publicacao WHERE email_user='"+ str(email)+ "'")
+        cursor.execute("DELETE FROM usuario WHERE email='"+ str(email)+ "'")
         cursor.close()
         self.conexao.commit()
 
