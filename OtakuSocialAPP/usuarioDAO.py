@@ -13,15 +13,20 @@ class usuarioDAO:
 
     def inserir_amigo(self, email_user, email_amigo):
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * from usuario')
+        cursor.execute('SELECT * from usuario WHERE email=(%s) or email=(%s)', (email_user, email_amigo,))
         tupla = cursor.fetchall()
-        amigo = None
+        print(tupla)
         for t in tupla:
-            if t[1] == email_amigo:
-                amigo = t
-                cursor.execute('INSERT INTO amigos(email_user, nome, email_amigo, data_nascimento) VALUES (%s, %s, %s, %s)', (email_user, amigo[0], amigo[1], amigo[2]))
-        if amigo == None:
-            print('Email do amigo incorreto')
+            print(t)
+            if str(t['email']) == email_amigo:
+                amigo = self.__montar_objeto_usuario(t)
+                cursor.execute('INSERT INTO amigos(email_user, nome, email_amigo, data_nascimento) VALUES (%s, %s, %s, %s)', (email_user, amigo.nome, amigo.email, amigo.data_nascimento))
+                print('Adicionado')
+            if str(t['email']) == email_user:
+                user = self.__montar_objeto_usuario(t)
+                cursor.execute('INSERT INTO amigos(email_user, nome, email_amigo, data_nascimento) VALUES (%s, %s, %s, %s)', (email_amigo, user.nome, user.email, user.data_nascimento))
+                print('adicionado')
+
         cursor.close()
         self.conexao.commit()
 
@@ -53,16 +58,17 @@ class usuarioDAO:
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("SELECT * FROM amigos WHERE nome like '"+ "%" + str(nome)+ "%" + "'")
         for tupla in cursor.fetchall():
-            return 'Nome: '+str(tupla[1])+',','Email: ' + str(tupla[3])
+            return 'Nome: '+str(tupla['nome'])+',','Email: ' + str(tupla['email_amigo'])
         cursor.close()
 
     def listar_amigos(self, email):
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute('SELECT * FROM amigos')
+        cursor.execute('SELECT * FROM amigos WHERE email_user=(%s)', (email,))
+        amigos = list()
         for tupla in cursor.fetchall():
-            if str(tupla[0]) == email:
-                return ('Nome: ' + str(tupla[1]), 'Email: ' + str(tupla[3]))
+            amigos.append('Nome: ' + str(tupla['nome']) + ', Email: ' + str(tupla['email_amigo']))
         cursor.close()
+        return amigos
 
 
     def set_profissao(self, nova_profissao, email):
@@ -82,6 +88,13 @@ class usuarioDAO:
         cursor.execute("update login set senha = '"+str(nova_senha)+ "'" + " where email = '"+str(email)+"'")
         cursor.close()
         self.conexao.commit()
+
+    def listar_dados(self, email):
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM usuario WHERE email=(%s)', (email,))
+        for tupla in cursor.fetchall():
+            return 'Nome: ' + str(tupla['nome']) + ', ' + 'Email: ' + str(tupla['email']) + ', ' + 'Data de Nascimento: '+ str(tupla['data_nascimento']) +', '+ 'Profissão: '+str(tupla['profissao'])
+        cursor.close()
 
     def excuir_conta(self, email):
         cursor = self.conexao.cursor()

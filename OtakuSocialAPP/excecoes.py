@@ -3,3 +3,6 @@ class UsuarioExistente(Exception):
 
 class IdadeMenorException(Exception):
     pass
+
+class SenhaIncorretaException(Exception):
+    pass

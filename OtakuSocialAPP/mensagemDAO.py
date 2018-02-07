@@ -13,7 +13,7 @@ class MensagemDAO:
         self.conexao.commit()
 
     def nomes_conversas(self, email):
-        cursor = self.conexao.cursor()
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("SELECT DISTINCT usuario.nome FROM mensagem, usuario WHERE email_o=(%s) AND email_d=usuario.email OR email_d=(%s) AND email_o=usuario.email", (email,email))
         nomes=list()
         for nome in cursor.fetchall():
@@ -22,7 +22,7 @@ class MensagemDAO:
         return nomes
 
     def conversa(self, email_o, email_d):
-        cursor = self.conexao.cursor()
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('SELECT m.email_o, m.texto, m.email_d FROM mensagem as m WHERE m.email_o=(%s) and m.email_d=(%s) OR m.email_d=(%s) AND m.email_o=(%s) ORDER BY data', (email_o, email_d, email_o, email_d))
         conversa=list()
         for tupla in cursor.fetchall():
@@ -31,7 +31,7 @@ class MensagemDAO:
         return conversa
 
     def buscar_mesagem(self, email, palavra):
-        cursor = self.conexao.cursor()
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("SELECT * FROM mensagem WHERE email_o=(%s) AND texto LIKE '%(%s)%'", (email, palavra))
         cursor.close()
 
@@ -46,3 +46,6 @@ class MensagemDAO:
         cursor.execute("DELETE FROM mensagem WHERE email_o=(%s)", (email,))
         cursor.close()
         self.conexao.commit()
+
+    def __montar_objeto_mensagem(self, tupla):
+        return Mensagem(tupla['texto'], tupla['email_o'], tupla['email_d'])

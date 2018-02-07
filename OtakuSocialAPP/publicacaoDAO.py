@@ -18,8 +18,17 @@ class publicacaoDAO:
         cursor.close()
         self.conexao.commit()'''
 
+    def publicar(self, publicacao: Publicacao):
+        cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute('SELECT * FROM publicacao WHERE email_user=(%s) AND texto=(%s)', (publicacao.email_user, publicacao.texto))
+        publicacao: Publicacao = self.__montar_objeto_publicacao(cursor.fetchone())
+        return publicacao
+
     def remover(self, numero_publi):
         cursor = self.conexao.cursor()
-        cursor.execute('DELETE FROM publicacao WHERE numero_publi='+ str(numero_publi))
+        cursor.execute('DELETE FROM publicacao WHERE numero_publi=(%s)',(numero_publi,))
         cursor.close()
         self.conexao.commit()
+
+    def __montar_objeto_publicacao(self, tupla):
+        return Publicacao(tupla['texto'], tupla['email_user'])
