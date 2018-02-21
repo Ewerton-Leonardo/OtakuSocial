@@ -6,3 +6,6 @@ class IdadeMenorException(Exception):
 
 class SenhaIncorretaException(Exception):
     pass
+
+class NomeExcedidoException(Exception):
+    pass

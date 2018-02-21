@@ -22,6 +22,7 @@ class publicacaoDAO:
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('SELECT * FROM publicacao WHERE email_user=(%s) AND texto=(%s)', (publicacao.email_user, publicacao.texto))
         publicacao: Publicacao = self.__montar_objeto_publicacao(cursor.fetchone())
+        cursor.close()
         return publicacao
 
     def remover(self, numero_publi):

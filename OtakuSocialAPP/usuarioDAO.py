@@ -15,9 +15,7 @@ class usuarioDAO:
         cursor = self.conexao.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute('SELECT * from usuario WHERE email=(%s) or email=(%s)', (email_user, email_amigo,))
         tupla = cursor.fetchall()
-        print(tupla)
         for t in tupla:
-            print(t)
             if str(t['email']) == email_amigo:
                 amigo = self.__montar_objeto_usuario(t)
                 cursor.execute('INSERT INTO amigos(email_user, nome, email_amigo, data_nascimento) VALUES (%s, %s, %s, %s)', (email_user, amigo.nome, amigo.email, amigo.data_nascimento))
@@ -25,8 +23,6 @@ class usuarioDAO:
             if str(t['email']) == email_user:
                 user = self.__montar_objeto_usuario(t)
                 cursor.execute('INSERT INTO amigos(email_user, nome, email_amigo, data_nascimento) VALUES (%s, %s, %s, %s)', (email_amigo, user.nome, user.email, user.data_nascimento))
-                print('adicionado')
-
         cursor.close()
         self.conexao.commit()
 
@@ -80,6 +76,7 @@ class usuarioDAO:
     def desfazer_amizade(self, email, email_amigo):
         cursor = self.conexao.cursor()
         cursor.execute("delete from amigos where email_user = '"+str(email)+"' and email_amigo = "+"'"+str(email_amigo)+"'")
+        cursor.execute("delete from amigos where email_user = '"+str(email_amigo)+"' and email_amigo = "+"'"+str(email)+"'")
         cursor.close()
         self.conexao.commit()
 
